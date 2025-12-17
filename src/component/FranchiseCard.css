@@ -1,0 +1,306 @@
+.franchise-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.franchise-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.franchise-card-header {
+  position: relative;
+  margin-bottom: 16px;
+}
+
+.franchise-owner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+}
+
+.owner-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  object-fit: cover;
+}
+
+/* Owner action buttons */
+.franchise-actions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  gap: 6px;
+  z-index: 3; /* ensure above ad photo */
+}
+.action-button {
+  background: rgba(255,255,255,0.95);
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #4a90e2;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+}
+.action-button:hover {
+  background: #e9f0fd;
+}
+
+.action-button.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: #f3f4f6;
+  color: #9ca3af;
+}
+
+.action-button.disabled:hover {
+  background: #f3f4f6;
+}
+
+/* Status badge shown for owner context */
+.status-badge {
+  position: absolute;
+  left: 40px;
+  top: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  color: #0f172a;
+  background: #e2e8f0;
+  border: 1px solid rgba(0,0,0,0.06);
+  z-index: 3;
+}
+
+.status-verified {
+  background: #dcfce7;
+  color: #166534;
+  border-color: #86efac;
+}
+
+.status-pending {
+  background: #fef9c3;
+  color: #854d0e;
+  border-color: #fde68a;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+  border-color: #fecaca;
+}
+
+.status-boosted {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #93c5fd;
+  top: 40px;
+  left: -10px;
+}
+
+/* Ad Photos - Square Image */
+.franchise-ad-photo {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 120px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.ad-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.franchise-year {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  font-size: 12px;
+  color: #666;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 4px 8px;
+  border-radius: 4px;
+}
+
+.franchise-info {
+  text-align: center;
+}
+
+.brand-info {
+  margin-bottom: 12px;
+}
+
+.franchise-name {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin: 0 0 4px 0;
+}
+
+.brand-name {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  font-weight: 500;
+}
+
+.franchise-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #666;
+}
+
+.detail-item i {
+  color: #4a90e2;
+  width: 14px;
+}
+
+.detail-item span {
+  flex: 1;
+  text-align: left;
+} 
+
+.franchise-owner-footer {
+  margin-top: 12px;
+  display: flex;
+  justify-content: flex-end;
+}
+.btn-primary.small {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+}
+
+/* Boost Modal basic styles */
+.boost-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+.boost-modal {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  overflow: hidden;
+}
+.boost-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 16px;
+  border-bottom: 1px solid #eee;
+}
+.boost-close {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+.boost-modal-body { padding: 16px; }
+.boost-packages { display: flex; gap: 8px; }
+.boost-package {
+  flex: 1;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  text-align: left;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  position: relative;
+}
+.boost-package:hover { border-color: #c7d2fe; box-shadow: 0 6px 16px rgba(37,99,235,0.15); }
+.boost-package.active { background: #eef2ff; border-color: #6366f1; box-shadow: 0 8px 20px rgba(99,102,241,0.25); }
+.boost-title { display: block; font-weight: 700; color: #1f2937; margin-bottom: 4px; }
+.boost-price { display: block; font-weight: 700; color: #111827; }
+.boost-desc { display: block; font-size: 12px; color: #6b7280; margin-top: 2px; }
+.boost-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #fde68a;
+  color: #854d0e;
+  border-radius: 999px;
+  font-size: 10px;
+  padding: 3px 8px;
+  border: 1px solid #f59e0b;
+}
+.boost-badge.accent { background: #bbf7d0; color: #065f46; border-color: #10b981; }
+.boost-status { margin-top: 10px; color: #334155; font-size: 12px; }
+.boost-error { margin-top: 10px; color: #b91c1c; font-size: 12px; }
+.boost-modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid #eee;
+}
+.boost-cancel { background: #e5e7eb; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+.boost-pay { background: #2563eb; color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
+
+/* Admin verification button */
+.action-button.admin-verify {
+  background: #10b981;
+  color: white;
+  border-color: #059669;
+}
+
+.action-button.admin-verify:hover {
+  background: #059669;
+  color: white;
+}
+
+.action-button.admin-verify i {
+  font-size: 14px;
+}
+
+/* Admin reject button */
+.action-button.admin-reject {
+  background: #ef4444;
+  color: white;
+  border-color: #dc2626;
+}
+
+.action-button.admin-reject:hover {
+  background: #dc2626;
+  color: white;
+}
+
+.action-button.admin-reject i {
+  font-size: 14px;
+}
