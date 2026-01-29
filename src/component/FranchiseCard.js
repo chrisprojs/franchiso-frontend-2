@@ -150,7 +150,7 @@ function FranchiseCard({ franchise, context, onCardClickOverride, onDelete, onSt
         {(context === 'owner' || context === 'admin') && statusInfo && (
           <div className={statusInfo.cls}>{statusInfo.label}</div>
         )}
-        {context === 'owner' && isBoosted && (
+        {isBoosted && (
           <div className="status-badge status-boosted">Boosted</div>
         )}
         

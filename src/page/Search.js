@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { searchFranchises, getCategories } from '../api/FranchiseAPI';
 import FranchiseCard from '../component/FranchiseCard';
@@ -11,6 +11,7 @@ function Search() {
   const [franchises, setFranchises] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [isSuggestedByAI, setIsSuggestedByAI] = useState(false);
   const [expandedFilters, setExpandedFilters] = useState({});
   const [categories, setCategories] = useState([]);
   const [categoriesLoading, setCategoriesLoading] = useState(true);
@@ -35,14 +36,41 @@ function Search() {
   const [limit] = useState(10);
   const [searchByImage, setSearchByImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const imageInputRef = React.useRef(null);
 
-  // Sync searchQuery with URL param `q`
+  // Sync state from URL params
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const q = params.get('q') || '';
     setSearchQuery(q);
-    setCurrentPage(1);
+    
+    // Sync filters from URL
+    setFilters({
+      category: params.get('category') || '',
+      minInvestment: params.get('minInvestment') || '',
+      maxInvestment: params.get('maxInvestment') || '',
+      minMonthlyRevenue: params.get('minMonthlyRevenue') || '',
+      minROI: params.get('minROI') || '',
+      maxROI: params.get('maxROI') || '',
+      minBranchCount: params.get('minBranchCount') || '',
+      maxBranchCount: params.get('maxBranchCount') || '',
+      minYearFounded: params.get('minYearFounded') || '',
+      maxYearFounded: params.get('maxYearFounded') || '',
+    });
+    
+    const page = parseInt(params.get('page')) || 1;
+    setCurrentPage(page);
   }, [location.search]);
+
+  // Update selected category name when filters.category changes
+  useEffect(() => {
+    if (filters.category && categories.length > 0) {
+      const selectedCategory = categories.find(cat => cat.id === filters.category);
+      setSelectedCategoryName(selectedCategory ? selectedCategory.category : '');
+    } else {
+      setSelectedCategoryName('');
+    }
+  }, [filters.category, categories]);
 
   // Load categories on component mount
   useEffect(() => {
@@ -90,6 +118,22 @@ function Search() {
     }));
   };
 
+  // Format number to Rupiah string (with thousand separators)
+  const formatRupiah = (value) => {
+    if (!value || value === '') return '';
+    const numericValue = value.toString().replace(/\D/g, '');
+    if (numericValue === '') return '';
+    // Format with thousand separators (Indonesian format uses dot as thousand separator)
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
+  // Parse Rupiah formatted string to number (remove all non-digit characters including "Rp" and spaces)
+  const parseRupiah = (value) => {
+    if (!value || value === '') return '';
+    // Remove all non-digit characters (including "Rp", spaces, dots, etc.)
+    return value.toString().replace(/\D/g, '');
+  };
+
   const handleFilterChange = (filterName, value) => {
     // Validasi untuk memastikan nilai tidak negatif
     if (value !== '' && parseFloat(value) < 0) {
@@ -100,88 +144,133 @@ function Search() {
       ...prev,
       [filterName]: value
     }));
+  };
 
-    // Update selected category name
-    if (filterName === 'category') {
-      if (value === '') {
-        setSelectedCategoryName('');
-      } else {
-        const selectedCategory = categories.find(cat => cat.id === value);
-        setSelectedCategoryName(selectedCategory ? selectedCategory.category : '');
-      }
+  const handleRupiahFilterChange = (filterName, formattedValue) => {
+    const numericValue = parseRupiah(formattedValue);
+    handleFilterChange(filterName, numericValue);
+  };
+
+  const handleFilterKeyPress = (e) => {
+    if (e.key === 'Enter') {
+      handleSearchSubmit(e);
     }
   };
 
-  const handleSearch = useCallback(async () => {
-    setLoading(true);
-    try {
-      const searchParams = {
-        searchQuery,
-        page: currentPage,
-        limit,
-        ...filters
-      };
-
-      // Remove empty values
-      Object.keys(searchParams).forEach(key => {
-        if (searchParams[key] === '' || searchParams[key] === null || searchParams[key] === undefined) {
-          delete searchParams[key];
-        }
-      });
-
-      const response = await searchFranchises(searchParams, searchByImage);
-      setFranchises(response.franchises || []);
-      setTotal(response.total || 0);
-    } catch (error) {
-      console.error('Error searching franchises:', error);
-      setFranchises([]);
-      setTotal(0);
-    } finally {
-      setLoading(false);
+  const handleFilterBlur = (e) => {
+    // Trigger search when leaving filter input (except searchQuery)
+    if (e) {
+      e.preventDefault();
     }
-  }, [searchQuery, currentPage, limit, filters, searchByImage]);
+    const params = new URLSearchParams();
+    
+    // Add search query
+    if (searchQuery.trim()) {
+      params.set('q', searchQuery.trim());
+    }
+    
+    // Add filters to URL params
+    if (filters.category) params.set('category', filters.category);
+    if (filters.minInvestment) params.set('minInvestment', filters.minInvestment);
+    if (filters.maxInvestment) params.set('maxInvestment', filters.maxInvestment);
+    if (filters.minMonthlyRevenue) params.set('minMonthlyRevenue', filters.minMonthlyRevenue);
+    if (filters.minROI) params.set('minROI', filters.minROI);
+    if (filters.maxROI) params.set('maxROI', filters.maxROI);
+    if (filters.minBranchCount) params.set('minBranchCount', filters.minBranchCount);
+    if (filters.maxBranchCount) params.set('maxBranchCount', filters.maxBranchCount);
+    if (filters.minYearFounded) params.set('minYearFounded', filters.minYearFounded);
+    if (filters.maxYearFounded) params.set('maxYearFounded', filters.maxYearFounded);
+    
+    // Reset to page 1 and navigate
+    params.set('page', '1');
+    navigate({ pathname: '/search', search: params.toString() });
+  };
 
+  // Perform search when URL params or image search changes
   useEffect(() => {
-    handleSearch();
-  }, [currentPage, handleSearch]);
+    const performSearch = async () => {
+      setLoading(true);
+      try {
+        // Read params from URL to ensure consistency
+        const urlParams = new URLSearchParams(location.search);
+        const urlSearchQuery = urlParams.get('q') || '';
+        const urlPage = parseInt(urlParams.get('page')) || 1;
+        
+        const urlFilters = {
+          category: urlParams.get('category') || '',
+          minInvestment: urlParams.get('minInvestment') || '',
+          maxInvestment: urlParams.get('maxInvestment') || '',
+          minMonthlyRevenue: urlParams.get('minMonthlyRevenue') || '',
+          minROI: urlParams.get('minROI') || '',
+          maxROI: urlParams.get('maxROI') || '',
+          minBranchCount: urlParams.get('minBranchCount') || '',
+          maxBranchCount: urlParams.get('maxBranchCount') || '',
+          minYearFounded: urlParams.get('minYearFounded') || '',
+          maxYearFounded: urlParams.get('maxYearFounded') || '',
+        };
 
-  // Auto-refresh when filters or search query changes
-  useEffect(() => {
-    // Add a small delay to avoid too many API calls while typing
-    const timeoutId = setTimeout(() => {
-      setCurrentPage(1);
-    }, 500);
+        const searchParams = {
+          searchQuery: urlSearchQuery,
+          page: urlPage,
+          limit,
+          ...urlFilters
+        };
 
-    return () => clearTimeout(timeoutId);
-  }, [filters, searchQuery, searchByImage]);
+        // Remove empty values
+        Object.keys(searchParams).forEach(key => {
+          if (searchParams[key] === '' || searchParams[key] === null || searchParams[key] === undefined) {
+            delete searchParams[key];
+          }
+        });
+
+        const response = await searchFranchises(searchParams, searchByImage);
+        setFranchises(response.franchises || []);
+        setTotal(response.total || 0);
+        setIsSuggestedByAI(response.is_suggested_by_ai || false);
+      } catch (error) {
+        console.error('Error searching franchises:', error);
+        setFranchises([]);
+        setTotal(0);
+        setIsSuggestedByAI(false);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    performSearch();
+  }, [location.search, searchByImage, limit]);
 
   const handleSearchSubmit = (e) => {
     e.preventDefault();
-    setCurrentPage(1);
     const params = new URLSearchParams();
-    if (searchQuery.trim()) params.set('q', searchQuery.trim());
-    // Keep filters in URL if needed in the future
+    
+    // Add search query
+    if (searchQuery.trim()) {
+      params.set('q', searchQuery.trim());
+    }
+    
+    // Add filters to URL params
+    if (filters.category) params.set('category', filters.category);
+    if (filters.minInvestment) params.set('minInvestment', filters.minInvestment);
+    if (filters.maxInvestment) params.set('maxInvestment', filters.maxInvestment);
+    if (filters.minMonthlyRevenue) params.set('minMonthlyRevenue', filters.minMonthlyRevenue);
+    if (filters.minROI) params.set('minROI', filters.minROI);
+    if (filters.maxROI) params.set('maxROI', filters.maxROI);
+    if (filters.minBranchCount) params.set('minBranchCount', filters.minBranchCount);
+    if (filters.maxBranchCount) params.set('maxBranchCount', filters.maxBranchCount);
+    if (filters.minYearFounded) params.set('minYearFounded', filters.minYearFounded);
+    if (filters.maxYearFounded) params.set('maxYearFounded', filters.maxYearFounded);
+    
+    // Reset to page 1 and navigate
+    params.set('page', '1');
     navigate({ pathname: '/search', search: params.toString() });
   };
 
   const clearFilters = () => {
-    setFilters({
-      category: '',
-      minInvestment: '',
-      maxInvestment: '',
-      minMonthlyRevenue: '',
-      minROI: '',
-      maxROI: '',
-      minBranchCount: '',
-      maxBranchCount: '',
-      minYearFounded: '',
-      maxYearFounded: '',
-    });
-    setSearchQuery('');
-    setSelectedCategoryName('');
-    setCurrentPage(1);
     setSearchByImage(null);
     setImagePreview(null);
+    // Navigate to clean URL to trigger search reset
+    navigate({ pathname: '/search', search: '' });
   };
 
   const toggleMobileFilters = () => {
@@ -205,21 +294,25 @@ function Search() {
         alert('Ukuran gambar harus kurang dari 10MB');
         return;
       }
-      setSearchByImage(file);
-      setCurrentPage(1);
-      // Create preview
+      // Create preview first
       const reader = new FileReader();
       reader.onloadend = () => {
         setImagePreview(reader.result);
       };
       reader.readAsDataURL(file);
+      
+      // Set image file - this will trigger search via useEffect
+      setSearchByImage(file);
     }
   };
 
   const handleRemoveImage = () => {
     setSearchByImage(null);
     setImagePreview(null);
-    setCurrentPage(1);
+    // Reset input file value to allow selecting the same file again
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
+    }
   };
 
   return (
@@ -251,6 +344,7 @@ function Search() {
             </label>
             <input
               id="image-upload"
+              ref={imageInputRef}
               type="file"
               accept="image/*"
               onChange={handleImageUpload}
@@ -312,17 +406,23 @@ function Search() {
               <div className="filter-content">
                 <div className="range-inputs">
                   <input
-                    type="number"
-                    placeholder="Min (Rp)"
-                    value={filters.minInvestment}
-                    onChange={(e) => handleFilterChange('minInvestment', e.target.value)}
+                    type="text"
+                    placeholder="Min (contoh: 1000000)"
+                    value={filters.minInvestment ? `Rp ${formatRupiah(filters.minInvestment)}` : ''}
+                    onChange={(e) => handleRupiahFilterChange('minInvestment', e.target.value)}
+                    onKeyPress={handleFilterKeyPress}
+                    onBlur={handleFilterBlur}
                     className="filter-input"
                   />
+                </div>
+                <div className="range-inputs">
                   <input
-                    type="number"
-                    placeholder="Max (Rp)"
-                    value={filters.maxInvestment}
-                    onChange={(e) => handleFilterChange('maxInvestment', e.target.value)}
+                    type="text"
+                    placeholder="Max (contoh: 5000000)"
+                    value={filters.maxInvestment ? `Rp ${formatRupiah(filters.maxInvestment)}` : ''}
+                    onChange={(e) => handleRupiahFilterChange('maxInvestment', e.target.value)}
+                    onKeyPress={handleFilterKeyPress}
+                    onBlur={handleFilterBlur}
                     className="filter-input"
                   />
                 </div>
@@ -344,10 +444,12 @@ function Search() {
               <div className="filter-content">
                 <div className="range-inputs">
                   <input
-                    type="number"
-                    placeholder="Min (Rp)"
-                    value={filters.minMonthlyRevenue}
-                    onChange={(e) => handleFilterChange('minMonthlyRevenue', e.target.value)}
+                    type="text"
+                    placeholder="Min (contoh: 500000)"
+                    value={filters.minMonthlyRevenue ? `Rp ${formatRupiah(filters.minMonthlyRevenue)}` : ''}
+                    onChange={(e) => handleRupiahFilterChange('minMonthlyRevenue', e.target.value)}
+                    onKeyPress={handleFilterKeyPress}
+                    onBlur={handleFilterBlur}
                     className="filter-input"
                   />
                 </div>
@@ -369,7 +471,21 @@ function Search() {
               <div className="filter-content">
                 <select
                   value={filters.category}
-                  onChange={(e) => handleFilterChange('category', e.target.value)}
+                  onChange={(e) => {
+                    handleFilterChange('category', e.target.value);
+                    // Trigger search immediately when category changes
+                    const params = new URLSearchParams();
+                    if (searchQuery.trim()) params.set('q', searchQuery.trim());
+                    if (e.target.value) params.set('category', e.target.value);
+                    Object.keys(filters).forEach(key => {
+                      if (key !== 'category' && filters[key]) {
+                        params.set(key, filters[key]);
+                      }
+                    });
+                    params.set('page', '1');
+                    navigate({ pathname: '/search', search: params.toString() });
+                  }}
+                  onKeyPress={handleFilterKeyPress}
                   className="filter-select"
                 >
                   <option value="">Semua Kategori</option>
@@ -403,6 +519,8 @@ function Search() {
                     placeholder="Min"
                     value={filters.minBranchCount}
                     onChange={(e) => handleFilterChange('minBranchCount', e.target.value)}
+                    onKeyPress={handleFilterKeyPress}
+                    onBlur={handleFilterBlur}
                     className="filter-input"
                   />
                   <input
@@ -410,6 +528,8 @@ function Search() {
                     placeholder="Max"
                     value={filters.maxBranchCount}
                     onChange={(e) => handleFilterChange('maxBranchCount', e.target.value)}
+                    onKeyPress={handleFilterKeyPress}
+                    onBlur={handleFilterBlur}
                     className="filter-input"
                   />
                 </div>
@@ -435,6 +555,8 @@ function Search() {
                     placeholder="Min"
                     value={filters.minYearFounded}
                     onChange={(e) => handleFilterChange('minYearFounded', e.target.value)}
+                    onKeyPress={handleFilterKeyPress}
+                    onBlur={handleFilterBlur}
                     className="filter-input"
                   />
                   <input
@@ -442,6 +564,8 @@ function Search() {
                     placeholder="Max"
                     value={filters.maxYearFounded}
                     onChange={(e) => handleFilterChange('maxYearFounded', e.target.value)}
+                    onKeyPress={handleFilterKeyPress}
+                    onBlur={handleFilterBlur}
                     className="filter-input"
                   />
                 </div>
@@ -467,6 +591,8 @@ function Search() {
                     placeholder="Min (bulan)"
                     value={filters.minROI}
                     onChange={(e) => handleFilterChange('minROI', e.target.value)}
+                    onKeyPress={handleFilterKeyPress}
+                    onBlur={handleFilterBlur}
                     className="filter-input"
                   />
                   <input
@@ -474,6 +600,8 @@ function Search() {
                     placeholder="Max (bulan)"
                     value={filters.maxROI}
                     onChange={(e) => handleFilterChange('maxROI', e.target.value)}
+                    onKeyPress={handleFilterKeyPress}
+                    onBlur={handleFilterBlur}
                     className="filter-input"
                   />
                 </div>
@@ -486,9 +614,21 @@ function Search() {
         {/* Main Content */}
         <div className="main-content">
           <div className="search-results-header">
-            <h2>
-              {searchQuery ? `Mencari "${searchQuery}"...` : 'Semua Franchise'}
-            </h2>
+            <div className="header-title-wrapper">
+              <h2>
+                {(() => {
+                  const params = new URLSearchParams(location.search);
+                  const urlQuery = params.get('q') || '';
+                  return urlQuery ? `Mencari "${urlQuery}"...` : 'Semua Franchise';
+                })()}
+              </h2>
+              {isSuggestedByAI && (
+                <div className="ai-suggested-badge">
+                  <i className="fas fa-sparkles"></i>
+                  <span>Disarankan oleh AI</span>
+                </div>
+              )}
+            </div>
             {selectedCategoryName && (
               <p className="selected-category">
                 Kategori: <strong>{selectedCategoryName}</strong>
@@ -503,7 +643,7 @@ function Search() {
               <p>Mencari franchise...</p>
             </div>
           ) : franchises.length > 0 ? (
-            <div className="franchise-grid">
+            <div className={`franchise-grid`}>
               {franchises.map((franchise, index) => (
                 <FranchiseCard key={franchise.id || index} franchise={franchise} />
               ))}
@@ -520,7 +660,12 @@ function Search() {
           {total > limit && (
             <div className="pagination">
               <button 
-                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                onClick={() => {
+                  const newPage = Math.max(1, currentPage - 1);
+                  const params = new URLSearchParams(location.search);
+                  params.set('page', newPage.toString());
+                  navigate({ pathname: '/search', search: params.toString() });
+                }}
                 disabled={currentPage === 1}
                 className="pagination-btn"
               >
@@ -531,7 +676,12 @@ function Search() {
                 Halaman {currentPage} dari {Math.ceil(total / limit)}
               </span>
               <button 
-                onClick={() => setCurrentPage(prev => prev + 1)}
+                onClick={() => {
+                  const newPage = currentPage + 1;
+                  const params = new URLSearchParams(location.search);
+                  params.set('page', newPage.toString());
+                  navigate({ pathname: '/search', search: params.toString() });
+                }}
                 disabled={currentPage >= Math.ceil(total / limit)}
                 className="pagination-btn"
               >
