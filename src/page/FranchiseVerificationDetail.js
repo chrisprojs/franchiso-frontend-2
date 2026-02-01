@@ -130,7 +130,7 @@ function FranchiseVerificationDetail() {
         <div className="franchise-info-section">
           <div className="brand-header">
             <div className="brand-logo">
-              <img src={`${IMAGE_API_URL}${franchise.logo}` || "/image/logo.png"} alt={`${franchise.brand} Logo`} />
+              <img src={`${IMAGE_API_URL}${franchise.logo}` || "/image/empty_logo.png"} alt={`${franchise.brand} Logo`} />
             </div>
             <div className="brand-details">
               <h2 className="brand-name">{franchise.brand}</h2>

@@ -106,6 +106,12 @@ export async function searchFranchises(query, searchByImage = null) {
   if (query.maxYearFounded && query.maxYearFounded !== '') {
     formData.append('max_year_founded', parseInt(query.maxYearFounded));
   }
+  if (query.orderBy && query.orderBy !== '') {
+    formData.append('order_by', query.orderBy);
+  }
+  if (query.orderDirection && query.orderDirection !== '') {
+    formData.append('order_direction', query.orderDirection);
+  }
   
   // Add pagination
   if (query.page) {

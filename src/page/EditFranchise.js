@@ -106,6 +106,26 @@ function EditFranchise() {
     loadInitial();
   }, [id, accessToken, user, navigate]);
 
+  // Format angka ke tampilan Rupiah dengan titik pemisah ribuan
+  const formatRupiah = (value) => {
+    if (!value || value === '') return '';
+    const numericValue = value.toString().replace(/\D/g, '');
+    if (numericValue === '') return '';
+    return numericValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
+  // Hilangkan semua karakter non-digit (untuk disimpan / dikirim ke backend)
+  const parseRupiah = (value) => {
+    if (!value || value === '') return '';
+    return value.toString().replace(/\D/g, '');
+  };
+
+  const handleRupiahChange = (name, formattedValue) => {
+    const numericValue = parseRupiah(formattedValue);
+    setFormData(prev => ({ ...prev, [name]: numericValue }));
+    if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -397,11 +417,25 @@ function EditFranchise() {
             <div className="form-row">
               <div className="form-group">
                 <label>Modal Investasi</label>
-                <input type="number" name="investment" value={formData.investment} onChange={handleInputChange} placeholder="Modal Investasi" className={errors.investment ? 'error' : ''} />
+                <input
+                  type="text"
+                  name="investment"
+                  value={formData.investment ? `Rp ${formatRupiah(formData.investment)}` : ''}
+                  onChange={(e) => handleRupiahChange('investment', e.target.value)}
+                  placeholder="Modal Investasi"
+                  className={errors.investment ? 'error' : ''}
+                />
               </div>
               <div className="form-group">
                 <label>Pendapatan per Bulan</label>
-                <input type="number" name="monthly_revenue" value={formData.monthly_revenue} onChange={handleInputChange} placeholder="Pendapatan per Bulan" className={errors.monthly_revenue ? 'error' : ''} />
+                <input
+                  type="text"
+                  name="monthly_revenue"
+                  value={formData.monthly_revenue ? `Rp ${formatRupiah(formData.monthly_revenue)}` : ''}
+                  onChange={(e) => handleRupiahChange('monthly_revenue', e.target.value)}
+                  placeholder="Pendapatan per Bulan"
+                  className={errors.monthly_revenue ? 'error' : ''}
+                />
               </div>
             </div>
 

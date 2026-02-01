@@ -154,7 +154,7 @@ function FranchiseDetail() {
           <div className="brand-header">
             <div className="brand-logo">
               <img 
-                src={`${IMAGE_API_URL}${typeof franchise.logo === "string" ? franchise.logo : franchise.logo.file_path}` || "/image/logo.png"} 
+                src={`${IMAGE_API_URL}${typeof franchise.logo === "string" ? franchise.logo : franchise.logo.file_path}` || "/image/empty_logo.png"} 
                 alt={`${franchise.brand} Logo`}
               />
             </div>

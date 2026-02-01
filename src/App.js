@@ -14,6 +14,7 @@ import FranchiseVerificationDetail from './page/FranchiseVerificationDetail';
 import AdminFranchiseVerificationDetail from './page/AdminFranchiseVerificationDetail';
 import UploadFranchise from './page/UploadFranchise';
 import EditFranchise from './page/EditFranchise';
+import AboutUs from './page/AboutUs';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
         <Route path="/admin/franchise/:id/verify" element={<AdminFranchiseVerificationDetail />} />
         <Route path="/franchise/:id/verify" element={<FranchiseVerificationDetail />} />
         <Route path="/franchise/:id" element={<FranchiseDetail />} />
+        <Route path="/about-us" element={<AboutUs />} />
         <Route path="/franchise/upload" element={<UploadFranchise />} />
         <Route path="/franchise/:id/edit" element={<EditFranchise />} />
         <Route path="/login" element={<Login />} />

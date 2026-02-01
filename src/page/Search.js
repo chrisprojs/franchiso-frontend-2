@@ -692,6 +692,7 @@ function Search() {
           )}
         </div>
       </div>
+      <footer className="footer">© 2025 Franchiso. All rights reserved.</footer>
     </div>
   );
 }

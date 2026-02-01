@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { logout } from '../store';
+import './Navbar.css';
 
 function Navbar() {
   const user = useSelector(state => state.franchisoAuth.user);
@@ -32,16 +33,20 @@ function Navbar() {
   return (
     <nav className="navbar">
       <div className="logo">
-        <span role="img" aria-label="store">🏪</span>
+        <img
+          src="/image/logo.png"
+          alt="Franchiso Logo"
+          className="logo-img"
+        />
         <b>Franchiso</b>
       </div>
       <div className="nav-links">
-        <Link to="/">Beranda</Link>
-        <Link to="/search">Cari</Link>
-        <Link to="/about">Tentang Kami</Link>
+        <Link to="/">Home</Link>
+        <Link to="/search">Search</Link>
+        <Link to="/about-us">About Us</Link>
       </div>
       <div className="nav-actions">
-        {!user && <Link to="/register" className="btn-outline">Daftar</Link>}
+        {!user && <Link to="/register" className="btn-outline">Register</Link>}
         {!user && <Link to="/login" className="btn-outline">Login</Link>}
         {user && (
           <div ref={menuRef} className="user-menu">

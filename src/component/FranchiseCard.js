@@ -98,7 +98,7 @@ function FranchiseCard({ franchise, context, onCardClickOverride, onDelete, onSt
       <div className="franchise-card-header">
         <div className="franchise-owner">
           <img 
-            src={`${IMAGE_API_URL}${typeof franchise.logo === 'string' ? franchise.logo : franchise.logo.file_path}` || "/image/logo.png"} 
+            src={`${IMAGE_API_URL}${typeof franchise.logo === 'string' ? franchise.logo : franchise.logo.file_path}` || "/image/empty_logo.png"} 
             alt="Brand Logo" 
             className="owner-avatar"
           />
