@@ -1,70 +1,102 @@
-# Getting Started with Create React App
+# Franchiso
+Franchiso is a web-based marketplace platform designed to facilitate the buying and selling of franchise businesses in Indonesia by connecting franchisors and potential franchisees in a single digital ecosystem. The platform allows franchisors to publish detailed franchise information, including investment costs, return on investment, business documents, and outlet locations, while enabling franchisees to search and compare opportunities using advanced filters and location mapping features. By incorporating business verification, structured information, and secure transaction support, Franchiso aims to increase transparency, trust, and efficiency in the franchise trading process, making it easier for users to find, evaluate, and acquire franchise business opportunities.
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## AI & Search Features
 
-## Available Scripts
+<table border="0">
+  <tr>
+    <td valign="top" width="50%">
+      <b>Searching Using AI</b><br>
+      <img src="documentation/1.jpg" width="250"><br>
+      Advanced search system leveraging AI to search by query and image.
+    </td>
+    <td valign="top" width="50%">
+      <b>Midtrans Payments</b><br>
+      <img src="documentation/2.jpg" width="250"><br>
+      Seamless and secure boosting payment transactions.
+    </td>
+  </tr>
+  <tr>
+    <td valign="top" width="50%">
+      <b>Elasticsearch Filters</b><br>
+      <img src="documentation/3.jpg" width="250"><br>
+      Combines traditional filters with AI semantic similarity.
+    </td>
+    <td valign="top" width="50%">
+      <b>Location Mapping</b><br>
+      <img src="documentation/4.jpg" width="250"><br>
+      Geospatial data visualization for franchise outlets.
+    </td>
+  </tr>
+</table>
 
-In the project directory, you can run:
+## Franchiso Frontend 2
 
-### `npm start`
+Franchiso Frontend 2 is a React-based single-page application built with `create-react-app`, `react-router-dom`, and `@reduxjs/toolkit`. It provides the user-facing interface for browsing, searching, and managing franchise listings, as well as dashboards for franchisors and administrators.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+For the backend code repository, please clone from https://github.com/chrisprojs/franchiso-backend-2
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Tech Stack
 
-### `npm test`
+- **Framework**: React (JavaScript)
+- **State Management**: Redux Toolkit + `react-redux`, `redux-persist`
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Getting Started
 
-### `npm run build`
+1. **Install dependencies**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+   ```bash
+   npm install
+   ```
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+2. **Configure environment variables**
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+   - Copy `env.example` to `.env` (if not already present).
+   - Fill in the required values such as API base URLs, authentication keys, and optional map/search configuration.
 
-### `npm run eject`
+3. **Run the development server**
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+   ```bash
+   npm start
+   ```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+   The app will be available at `http://localhost:3000`.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Project Structure (Frontend)
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- **`src/App.js`**: Main application shell and route definitions.
+- **`src/store.js`**: Redux store configuration and persistence setup.
+- **`src/api/`**:
+  - `AuthAPI.js`: Authentication-related API calls (login, register, profile).
+  - `FranchiseAPI.js`: Franchise listing, detail, and management API calls.
+- **`src/page/`**: Top-level pages:
+  - `Home.js`: Landing page with featured franchises and search entry points.
+  - `Search.js`: Franchise search with filters and (optionally) AI-powered features.
+  - `FranchiseDetail.js`: Detailed franchise information, documents, and outlet locations.
+  - `UploadFranchise.js`: Form for franchisors to submit new franchise listings.
+  - `FranchisorDashboard.js`: Franchisor view for managing their franchises and boosts.
+  - `AdminDashboard.js`: Admin overview of platform activity and verifications.
+  - `FranchiseVerificationDetail.js` / `AdminFranchiseVerificationDetail.js`: Detailed verification flows for submitted franchises.
+  - `Login.js`, `Register.js`, `Profile.js`, `AboutUs.js`: Authentication and informational pages.
+- **`src/component/`**: Reusable UI components:
+  - `Navbar.js`: Application navigation bar.
+  - `FranchiseCard.js`: Card representation of franchise items in lists.
+  - `FranchiseMap.js`: Map visualization of franchise outlet locations.
+  - `BoostModal.js`: Modal for boosting/promoting franchise listings.
+  - `AuthForm.js`, `AuthImage.js`: Auth-related layout components.
+- **`src/data/ListFranchiseMap.jsx`**: Static or helper data for map-based franchise rendering.
+- **`indonesia-province-simple.json`**: Location data used for mapping and filters in Indonesia.
 
-## Learn More
+### Maps & Geospatial Features
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Franchiso Frontend 2 supports geospatial visualization of franchise outlets and province-based filtering. For details on how to configure map providers, API keys, and coordinate data, see `MAP_SETUP.md`. The `FranchiseMap` component consumes map configuration and outlet location data to render interactive maps inside detail and search pages.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### AI Search, Filters & Payments (Frontend Role)
 
-### Code Splitting
+The frontend integrates with backend services that provide:
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+- **AI-powered search**: Sending text/image queries to backend AI search endpoints and rendering ranked franchise results.
+- **Elasticsearch filters**: Building filter queries (investment, category, location, ROI, etc.) and visualizing results using traditional and semantic similarity search.
+- **Midtrans payments**: Initiating and tracking boosting/payment flows via Midtrans through API calls and callback handling.
 
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+This repository focuses on the UI and client-side behavior; the core AI, search indexing, and payment integrations are implemented on the backend and exposed via the APIs consumed in `src/api/`.
